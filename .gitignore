@@ -1,0 +1,40 @@
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# .NET build output
+bin/
+obj/
+artifacts/
+
+# macOS
+.DS_Store
+
+# IDE / local files
+.vscode/
+.idea/
+*.code-workspace
+
+# AI / local development files
+.claude/
+**/.claude/
+AGENTS.md
+CLAUDE.md
+**/*claude*.md
+
+# Internal project reports
+**/INSPECTION_REPORT*.md
+ADDING_A_SPORT.md
+
+# Admin app - kept out of public portfolio repo
+ShowUpAdmin/

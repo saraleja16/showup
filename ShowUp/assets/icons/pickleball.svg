@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <!-- Pickleball silhouette: solid disc with perforated holes (matches provided asset). -->
+  <defs>
+    <mask id="pb-holes">
+      <rect width="256" height="256" fill="#fff"/>
+      <!-- hole pattern -->
+      <circle cx="128" cy="56" r="11" fill="#000"/>
+      <circle cx="88" cy="70" r="11" fill="#000"/>
+      <circle cx="168" cy="70" r="11" fill="#000"/>
+      <circle cx="62" cy="102" r="11" fill="#000"/>
+      <circle cx="128" cy="96" r="11" fill="#000"/>
+      <circle cx="194" cy="102" r="11" fill="#000"/>
+      <circle cx="52" cy="140" r="11" fill="#000"/>
+      <circle cx="96" cy="132" r="11" fill="#000"/>
+      <circle cx="160" cy="132" r="11" fill="#000"/>
+      <circle cx="204" cy="140" r="11" fill="#000"/>
+      <circle cx="72" cy="176" r="11" fill="#000"/>
+      <circle cx="128" cy="168" r="11" fill="#000"/>
+      <circle cx="184" cy="176" r="11" fill="#000"/>
+      <circle cx="100" cy="208" r="11" fill="#000"/>
+      <circle cx="156" cy="208" r="11" fill="#000"/>
+      <circle cx="128" cy="230" r="9" fill="#000"/>
+    </mask>
+  </defs>
+  <circle cx="128" cy="128" r="112" fill="currentColor" mask="url(#pb-holes)"/>
+</svg>

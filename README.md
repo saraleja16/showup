@@ -86,11 +86,19 @@ Some of the areas I worked on include:
 
 The mobile application was developed with Expo and can be tested using Expo Go during development.
 
-The current version uses a locally running backend, so testing the full mobile experience requires the frontend and backend to be running locally.
+The web version can be opened through Expo during development.
 
-For the web version, the application can also be opened through Expo during development.
+The backend is deployed and publicly accessible through Render:
 
-> A future improvement would be deploying the backend and application so that anyone can test ShowUp without needing a local development environment.
+https://showup-r5rr.onrender.com
+
+The API base URL used by the frontend is:
+
+https://showup-r5rr.onrender.com/api
+
+The deployed backend is connected to the project's PostgreSQL database through Supabase.
+
+> Note: The current mobile project uses Expo SDK 54. The deployed backend can be accessed independently of the local development environment.
 
 ---
 

@@ -205,8 +205,8 @@ export function CreateEventScreen() {
           ? ` Could not send an invitation to: ${inviteFailures.join(', ')}.`
           : '';
 
-      Alert.alert('Event created!', `Your game has been posted.${inviteNote}`, [
-        { text: 'OK', onPress: () => router.back() },
+      Alert.alert('Event Created', `Your event has been created successfully!${inviteNote}`, [
+        { text: 'OK', onPress: () => router.replace('/(tabs)/create') },
       ]);
     } catch (err) {
       Alert.alert('Error', getApiErrorMessage(err, 'Could not create event. Please try again.'));

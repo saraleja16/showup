@@ -69,15 +69,22 @@ public class AuthService : IAuthService
 
         var createdUser = await _userRepository.CreateUserAsync(user);
 
-        // Fire off the verification code. A mail failure must not fail the signup —
-        // the client can always hit /api/auth/send-verification-code to retry.
         try
         {
             await _otpService.SendEmailVerificationAsync(createdUser.Email);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send verification email to {Email} during registration", createdUser.Email);
+            await _userRepository.DeleteAsync(createdUser.Id);
+            _logger.LogError(
+                ex,
+                "Failed to issue verification email to {Email} during registration; rolled back user {UserId}",
+                createdUser.Email,
+                createdUser.Id);
+            return (
+                null,
+                "Could not send verification email. Please try again shortly.",
+                StatusCodes.Status503ServiceUnavailable);
         }
 
         var response = UserMapper.ToAuthResponse(createdUser);

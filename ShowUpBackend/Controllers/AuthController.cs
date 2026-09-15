@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using ShowUpBackend.Configuration;
 using ShowUpBackend.Helpers;
 using ShowUpBackend.Models.DTOs;
+using ShowUpBackend.Services;
 using ShowUpBackend.Services.Interfaces;
 
 namespace ShowUpBackend.Controllers;
@@ -74,7 +75,21 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = "A valid email address is required" });
         }
 
-        var result = await _otpService.SendEmailVerificationAsync(request.Email);
+        OtpSendResult result;
+        try
+        {
+            result = await _otpService.SendEmailVerificationAsync(request.Email);
+        }
+        catch (Exception ex)
+        {
+            HttpContext.RequestServices
+                .GetRequiredService<ILogger<AuthController>>()
+                .LogError(ex, "Failed to issue verification email");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+            {
+                message = "Could not send verification email. Please try again shortly."
+            });
+        }
 
         if (result == OtpSendResult.RateLimited)
         {

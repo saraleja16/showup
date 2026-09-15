@@ -31,6 +31,9 @@ import type { SportDetails } from '@/src/sports/types';
 
 type SchedulePickerMode = 'date' | 'time' | null;
 
+const EVENT_CREATED_TITLE = 'Event Created';
+const EVENT_CREATED_MESSAGE = 'Your event has been created successfully!';
+
 function formatEventDate(date: Date): string {
   return date.toLocaleDateString('en-AU', {
     weekday: 'short',
@@ -50,6 +53,17 @@ function formatEventTime(date: Date): string {
     .toUpperCase();
 }
 
+function showEventCreatedMessage(onDismiss: () => void) {
+  if (Platform.OS === 'web') {
+    if (typeof globalThis.alert === 'function') {
+      globalThis.alert(`${EVENT_CREATED_TITLE}\n\n${EVENT_CREATED_MESSAGE}`);
+    }
+    onDismiss();
+    return;
+  }
+
+  Alert.alert(EVENT_CREATED_TITLE, EVENT_CREATED_MESSAGE, [{ text: 'OK', onPress: onDismiss }]);
+}
 
 export function CreateEventScreen() {
   const { user } = useSession();
@@ -188,26 +202,13 @@ export function CreateEventScreen() {
         isPrivate,
       });
 
-      let inviteFailures: string[] = [];
       if (matchInvites.length > 0) {
-        const results = await Promise.allSettled(
+        await Promise.allSettled(
           matchInvites.map((inv) => inviteToEvent(newEvent.id, inv.matchUserId, inv.slotId))
         );
-        inviteFailures = results
-          .map((r, i) => (r.status === 'rejected' ? matchInvites[i].matchName : null))
-          .filter((name): name is string => name !== null);
       }
 
-      const inviteNote =
-        matchInvites.length > 0 && inviteFailures.length === 0
-          ? ` Invitations sent to ${matchInvites.map((i) => i.matchName).join(', ')}.`
-          : inviteFailures.length > 0
-          ? ` Could not send an invitation to: ${inviteFailures.join(', ')}.`
-          : '';
-
-      Alert.alert('Event Created', `Your event has been created successfully!${inviteNote}`, [
-        { text: 'OK', onPress: () => router.replace('/(tabs)/create') },
-      ]);
+      showEventCreatedMessage(() => router.replace('/(tabs)/create'));
     } catch (err) {
       Alert.alert('Error', getApiErrorMessage(err, 'Could not create event. Please try again.'));
     } finally {

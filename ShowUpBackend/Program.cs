@@ -228,16 +228,20 @@ builder.Services.AddScoped<IEventInvitationService, EventInvitationService>();
 builder.Services.AddScoped<IAiSearchService, AiSearchService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 
-// Pick the email transport at startup: real SMTP when credentials exist, otherwise
-// log the message (including the OTP) so local development needs no Brevo account.
+// Pick the email transport at startup: real SMTP when credentials exist. Local
+// development may log the OTP, but production must fail loudly instead of
+// pretending an email was sent.
 var emailOptions = builder.Configuration.GetSection(EmailOptions.SectionName).Get<EmailOptions>() ?? new EmailOptions();
 if (emailOptions.IsConfigured)
 {
-    builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+builder.Services.AddHttpClient<IEmailSender, BrevoApiEmailSender>();}
+else if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddScoped<IEmailSender, LoggingEmailSender>();
 }
 else
 {
-    builder.Services.AddScoped<IEmailSender, LoggingEmailSender>();
+    builder.Services.AddScoped<IEmailSender, MisconfiguredEmailSender>();
 }
 builder.Services.AddHttpClient<INotificationService, NotificationService>();
 

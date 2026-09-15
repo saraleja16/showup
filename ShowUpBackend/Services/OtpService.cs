@@ -62,7 +62,7 @@ public class OtpService : IOtpService
 
         var code = GenerateCode();
 
-        await _otpRepository.AddAsync(new EmailOtp
+        var otp = new EmailOtp
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
@@ -72,16 +72,33 @@ public class OtpService : IOtpService
             ExpiresAt = DateTime.UtcNow.AddMinutes(_options.OtpExpiryMinutes),
             AttemptCount = 0,
             CreatedAt = DateTime.UtcNow
-        });
+        };
+
+        await _otpRepository.AddAsync(otp);
 
         var firstName = string.IsNullOrWhiteSpace(user.FirstName) ? "there" : user.FirstName;
 
-        await _emailSender.SendAsync(
-            normalizedEmail,
-            "Your ShowUp verification code",
-            BuildHtmlBody(firstName, code, _options.OtpExpiryMinutes),
-            BuildTextBody(firstName, code, _options.OtpExpiryMinutes),
-            cancellationToken);
+        try
+        {
+            await _emailSender.SendAsync(
+                normalizedEmail,
+                "Your ShowUp verification code",
+                BuildHtmlBody(firstName, code, _options.OtpExpiryMinutes),
+                BuildTextBody(firstName, code, _options.OtpExpiryMinutes),
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            otp.ConsumedAt = DateTime.UtcNow;
+            await _otpRepository.UpdateAsync(otp);
+            _logger.LogError(ex, "Failed to send verification email to {Email}", normalizedEmail);
+            if (ex is EmailDeliveryException)
+            {
+                throw;
+            }
+
+            throw new EmailDeliveryException("Could not send verification email.", ex);
+        }
 
         return OtpSendResult.Sent;
     }

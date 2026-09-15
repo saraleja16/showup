@@ -21,6 +21,9 @@ public class EmailOptions
 
     public string FromName { get; set; } = "ShowUp";
 
+    /// <summary>Brevo API key used for transactional email delivery.</summary>
+public string BrevoApiKey { get; set; } = string.Empty;
+
     /// <summary>
     /// Whether to perform the certificate revocation (CRL/OCSP) lookup during the TLS handshake.
     /// Defaults to false because that lookup frequently cannot complete on macOS and on

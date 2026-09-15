@@ -25,6 +25,7 @@ public class AuthRateLimitWebAppFactory : WebApplicationFactory<Program>
     public int RegisterWindowSeconds { get; init; } = 600;
     public int AvailabilityPermitLimit { get; init; } = 30;
     public int AvailabilityWindowSeconds { get; init; } = 60;
+    public bool FailEmailDelivery { get; init; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -49,6 +50,12 @@ public class AuthRateLimitWebAppFactory : WebApplicationFactory<Program>
 
             services.RemoveAll<INotificationService>();
             services.AddSingleton<INotificationService, NoOpNotificationService>();
+
+            if (FailEmailDelivery)
+            {
+                services.RemoveAll<IEmailSender>();
+                services.AddSingleton<IEmailSender, FailingEmailSender>();
+            }
         });
     }
 }
@@ -173,6 +180,47 @@ public class AuthRateLimitingTests
     }
 
     [Fact]
+    public async Task Register_returns_503_and_rolls_back_user_when_verification_email_fails()
+    {
+        await using var factory = new AuthRateLimitWebAppFactory
+        {
+            FailEmailDelivery = true
+        };
+        var client = factory.CreateClient();
+        var username = $"mailfail_{Guid.NewGuid():N}"[..16];
+
+        var response = await client.PostAsJsonAsync("/api/auth/register", BuildRegister(username));
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<MessageBody>(JsonOptions);
+        Assert.Equal("Could not send verification email. Please try again shortly.", body?.Message);
+
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        Assert.False(await db.Users.AnyAsync(u => u.Username == username));
+    }
+
+    [Fact]
+    public async Task Send_verification_code_returns_503_when_email_delivery_fails()
+    {
+        await using var factory = new AuthRateLimitWebAppFactory
+        {
+            FailEmailDelivery = true
+        };
+        var client = factory.CreateClient();
+        await EnsureUserAsync(factory, "resend_fail@example.com", "CorrectHorseBattery1!");
+
+        var response = await client.PostAsJsonAsync("/api/auth/send-verification-code", new
+        {
+            email = "resend_fail@example.com"
+        });
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        var body = await response.Content.ReadFromJsonAsync<MessageBody>(JsonOptions);
+        Assert.Equal("Could not send verification email. Please try again shortly.", body?.Message);
+    }
+
+    [Fact]
     public async Task Check_username_returns_429_after_availability_limit()
     {
         await using var factory = new AuthRateLimitWebAppFactory
@@ -245,5 +293,19 @@ public class AuthRateLimitingTests
     private sealed class MessageBody
     {
         public string? Message { get; set; }
+    }
+
+}
+
+internal sealed class FailingEmailSender : IEmailSender
+{
+    public Task SendAsync(
+        string toAddress,
+        string subject,
+        string htmlBody,
+        string textBody,
+        CancellationToken cancellationToken = default)
+    {
+        throw new InvalidOperationException("Test email delivery failure.");
     }
 }

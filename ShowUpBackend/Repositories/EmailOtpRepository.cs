@@ -38,9 +38,16 @@ public class EmailOtpRepository : IEmailOtpRepository
     {
         var now = DateTime.UtcNow;
 
-        await _context.EmailOtps
+        var outstanding = await _context.EmailOtps
             .Where(o => o.Email == email && o.Purpose == purpose && o.ConsumedAt == null)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(o => o.ConsumedAt, now));
+            .ToListAsync();
+
+        foreach (var otp in outstanding)
+        {
+            otp.ConsumedAt = now;
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(EmailOtp otp)

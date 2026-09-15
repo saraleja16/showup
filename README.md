@@ -68,37 +68,48 @@ Rather than simply showing nearby users, the system uses these factors to help i
 
 ## My Contribution
 
-I worked mainly across the frontend, while also contributing to different parts of the application throughout development.
+I worked primarily on the frontend of ShowUp, while also contributing to integration, authentication, testing, debugging, and deployment across the application.
 
-Some of the areas I worked on include:
+My main contributions included:
 
-- Profile photo upload
-- Google authentication
-- Adding and integrating the different sports
-- Frontend UI and visual improvements
-- Fixing cosmetic and usability issues throughout development
-- Testing and refining different parts of the application
-- Working with the team to connect and test frontend and backend functionality
+- Developing and refining frontend screens and reusable UI components using React Native, Expo, and TypeScript
+- Implementing profile photo upload functionality
+- Integrating Google authentication
+- Adding and integrating multiple sports across the application
+- Developing and improving the event creation experience
+- Connecting frontend functionality with the ASP.NET Core backend APIs
+- Testing and debugging authentication, event creation, user profiles, and other application flows
+- Improving UI consistency, usability, responsiveness, and overall user experience
+- Configuring and troubleshooting email verification and transactional email delivery
+- Supporting the deployment and production configuration of the frontend and backend
+- Configuring the production domain and resolving CORS and environment configuration issues
+- Collaborating with the team to integrate, test, and refine frontend and backend functionality
+
+Throughout the project, I gained hands-on experience working with a full-stack application from development and integration through to testing and production deployment.
 
 ---
 
 ## Testing the Project
 
-The mobile application was developed with Expo and can be tested using Expo Go during development.
+ShowUp is deployed and can be tested directly through the production web application:
 
-The web version can be opened through Expo during development.
+**Web Application:** https://showsups.com
 
-The backend is deployed and publicly accessible through Render:
+The application is connected to the deployed ASP.NET Core backend and PostgreSQL database hosted through Supabase.
 
-https://showup-r5rr.onrender.com
+**Backend API:** https://showup-r5rr.onrender.com/api
 
-The API base URL used by the frontend is:
+**Swagger API Documentation:** https://showup-r5rr.onrender.com/swagger
 
-https://showup-r5rr.onrender.com/api
+### Local Development
 
-The deployed backend is connected to the project's PostgreSQL database through Supabase.
+The mobile application was developed using React Native and Expo and can be tested locally using Expo Go.
 
-> Note: The current mobile project uses Expo SDK 54. The deployed backend can be accessed independently of the local development environment.
+The web version can also be run locally through Expo for development and testing.
+
+The current mobile project uses **Expo SDK 54**.
+
+> **Note:** The production application uses the deployed Render backend and Supabase database, allowing the main functionality to be tested without running the project locally.
 
 ---
 
